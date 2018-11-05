@@ -1,0 +1,89 @@
+<div id="temp" class="tab-pane active">
+<div class="row-fluid">
+
+    <table id="override-table" class="table table-bordered table-hover">
+        <tbody><tr>
+            <th class="override_setting">Setting</th>
+            <th class="override_actual" title="Current actual setting as reported by your printer">Actual</th>
+            <th class="override_target" title="Current target setting defined by you">Target</th>
+        </tr>
+        <th class="override_setting" data-bind="text: name, attr: {title: travel_feedrate}" title="G0 F? (Feedrate)">Travel Speed</th>
+        <td class="override_actual" data-bind="html: formatTemperature(actual()), attr: {title: formatTemperature(actual())}" title="off">off</td>
+        <td class="override_target">
+            <form class="form-inline" style="margin:0" data-bind="submit: function(element) { $root.setTarget($data, element) }">
+                <div class="input-prepend input-append">
+                    <button type="button" class="btn btn-input-dec" data-bind="click: $root.decrementTarget, enable: $root.isOperational() &amp;&amp; $root.loginState.isUser()" title="Fine adjust: -1°C" disabled=""><i class="fa fa-minus"></i></button>
+                    <input type="number" min="0" max="999" class="input-mini input-nospin" style="width: 30px" data-bind="attr: {placeholder: cleanTemperature(target())}, value: newTarget, valueUpdate: 'input', enable: $root.isOperational() &amp;&amp; $root.loginState.isUser(), event: { focus: function(d, e) {$root.handleFocus(e, 'target', $data) } }" placeholder="off" disabled="">
+                    <span class="add-on">°C</span>
+                    <button type="button" class="btn btn-input-inc" data-bind="click: $root.incrementTarget, enable: $root.isOperational() &amp;&amp; $root.loginState.isUser()" title="Fine adjust: +1°C" disabled=""><i class="fa fa-plus"></i></button>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" data-bind="enable: $root.isOperational() &amp;&amp; $root.loginState.isUser() &amp;&amp; $data.newTargetValid()" class="btn btn-primary" title="Set" disabled=""><i class="fa fa-check"></i></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" data-bind="enable: $root.isOperational() &amp;&amp; $root.loginState.isUser()" disabled="">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="javascript:void(0)" data-bind="click: $root.setTargetToZero">Off</a>
+                        </li>
+                        <li class="divider"></li>
+                        <!-- ko foreach: $root.temperature_profiles -->
+                        <li>
+                            <a href="javascript:void(0)" data-bind="click: function() {$root.setTargetFromProfile($parent, $data);}, text: 'Set ' + name + ' (' + ($parent.key() == 'bed' ? bed : extruder) + '°C)'">Set ABS (210°C)</a>
+                        </li>
+
+                        <li>
+                            <a href="javascript:void(0)" data-bind="click: function() {$root.setTargetFromProfile($parent, $data);}, text: 'Set ' + name + ' (' + ($parent.key() == 'bed' ? bed : extruder) + '°C)'">Set PLA (180°C)</a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </div>
+            </form>
+        </td>
+    </tr>
+    </tbody></table>
+
+    <script type="text/html" id="temprow-template">
+        <th class="temperature_tool" data-bind="text: name, attr: {title: name}"></th>
+        <td class="temperature_actual" data-bind="html: formatTemperature(actual()), attr: {title: formatTemperature(actual())}"></td>
+        <td class="temperature_target">
+            <form class="form-inline" style="margin:0" data-bind="submit: function(element) { $root.setTarget($data, element) }">
+                <div class="input-prepend input-append">
+                    <button type="button" class="btn btn-input-dec" data-bind="click: $root.decrementTarget, enable: $root.isOperational() && $root.loginState.isUser()" title="Fine adjust: -1°C"><i class="fa fa-minus"></i></button>
+                    <input type="number" min="0" max="999" class="input-mini input-nospin" style="width: 30px" data-bind="attr: {placeholder: cleanTemperature(target())}, value: newTarget, valueUpdate: 'input', enable: $root.isOperational() && $root.loginState.isUser(), event: { focus: function(d, e) {$root.handleFocus(e, 'target', $data) } }">
+                    <span class="add-on">&deg;C</span>
+                    <button type="button" class="btn btn-input-inc" data-bind="click: $root.incrementTarget, enable: $root.isOperational() && $root.loginState.isUser()" title="Fine adjust: +1°C"><i class="fa fa-plus"></i></button>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" data-bind="enable: $root.isOperational() && $root.loginState.isUser() && $data.newTargetValid()" class="btn btn-primary" title="Set"><i class="fa fa-check"></i></button>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" data-bind="enable: $root.isOperational() && $root.loginState.isUser()">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="javascript:void(0)" data-bind="click: $root.setTargetToZero">Off</a>
+                        </li>
+                        <li class="divider"></li>
+                        <!-- ko foreach: $root.temperature_profiles -->
+                        <li>
+                            <a href="javascript:void(0)" data-bind="click: function() {$root.setTargetFromProfile($parent, $data);}, text: 'Set ' + name + ' (' + ($parent.key() == 'bed' ? bed : extruder) + '&deg;C)'"></a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </div>
+            </form>
+        </td>
+        <td class="temperature_offset">
+            <form class="form-inline" style="margin:0">
+                <div class="input-append">
+                    <span class="input-mini uneditable-input text-right" style="width: 30px" data-bind="text: offset"></span>
+                    <span class="add-on">&deg;C</span>
+                    <button class="btn" title="Change Offset" data-bind="click: $root.changeOffset, enable: $root.isOperational() && $root.loginState.isUser()"><i class="fa fa-pencil"></i></button>
+                    <button class="btn" title="Delete Offset" data-bind="click: $root.setOffsetToZero, enable: $root.isOperational() && $root.loginState.isUser()"><i class="fa fa-trash"></i></button>
+                </div>
+            </form>
+        </td>
+    </script>
+</div>
+
+                                </div>
